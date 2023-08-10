@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+#redirect HTTP traffic to HTTPS
