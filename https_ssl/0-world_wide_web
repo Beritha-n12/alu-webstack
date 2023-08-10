@@ -1,2 +1,30 @@
 #!/usr/bin/env bash
-#Configuring the domain zone so that the subdomain www points to your load-balancer IP (lb-01).
+#Configuring the domain zone so that the subdomain www points to your load-balancer IP (lb-01)
+get_record_info() {
+    domain="$1"
+    subdomain="$2"
+
+    if [ -z "$subdomain" ]; then
+        subdomains=("www" "lb-01" "web-01" "web-02")
+    else
+        subdomains=("$subdomain")
+    fi
+
+    for sub in "${subdomains[@]}"; do
+        result=$(dig "$sub.$domain" +short)
+
+        if [ -n "$result" ]; then
+            record_type=$(dig "$sub.$domain" | awk '/ANSWER SECTION:/ {getline; print $4}')
+            echo "The subdomain $sub is a $record_type record and points to $result"
+        else
+            echo "The subdomain $sub does not exist"
+        fi
+    done
+}
+
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 domain [subdomain]"
+    exit 1
+fi
+
+get_record_info "$@"
